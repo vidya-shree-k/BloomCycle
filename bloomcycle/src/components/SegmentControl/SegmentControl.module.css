@@ -1,0 +1,50 @@
+.control {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 9px 15px;
+    border-radius: 22px;
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    background:
+        linear-gradient(145deg,
+            rgba(255,255,255,0.6),
+            rgba(255,245,252,0.42));
+    backdrop-filter: blur(10px);
+    font-size: 12px;
+    font-weight: 600;
+    color: #9e6880;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(.2,.8,.3,1);
+    font-family: 'DM Sans', sans-serif;
+    box-shadow:
+        0 2px 8px rgba(120,60,100,0.08),
+        0 1px 0 rgba(255,255,255,0.8) inset;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 6px 16px rgba(120,60,100,0.14),
+        0 1px 0 rgba(255,255,255,0.8) inset;
+    color: #6b3d58;
+}
+
+.active {
+    background: linear-gradient(135deg, #f472b6 0%, #a78bfa 100%);
+    color: #fff;
+    border-color: rgba(255,255,255,0.35);
+    box-shadow:
+        0 6px 20px rgba(244, 114, 182, 0.38),
+        0 1px 0 rgba(255,255,255,0.3) inset;
+    font-weight: 700;
+}
+
+.active:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 10px 26px rgba(244, 114, 182, 0.45),
+        0 1px 0 rgba(255,255,255,0.3) inset;
+}

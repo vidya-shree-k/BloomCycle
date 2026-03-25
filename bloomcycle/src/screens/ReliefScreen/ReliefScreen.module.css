@@ -1,0 +1,329 @@
+/* Local keyframes needed by this module */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.91); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes float3 {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-10px); }
+}
+@keyframes waveRing {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* ── Child's Pose animations ── */
+@keyframes torsoBreath {
+  0%,100% { d: path("M125 108 Q110 85 90 72 Q72 60 58 64"); }
+  50%     { d: path("M125 108 Q112 90 92 78 Q74 66 60 70"); }
+}
+@keyframes headBob {
+  0%,100% { transform: translate(0,0); }
+  50%     { transform: translate(0,-3px); }
+}
+@keyframes armSway {
+  0%,100% { transform: translate(0,0); }
+  50%     { transform: translate(-2px,-2px); }
+}
+@keyframes auraBreath {
+  0%,100% { opacity: 0.18; transform: scale(1); }
+  50%     { opacity: 0.4;  transform: scale(1.18); }
+}
+@keyframes auraBreath2 {
+  0%,100% { opacity: 0.1; transform: scale(1); }
+  50%     { opacity: 0.28; transform: scale(1.22); }
+}
+@keyframes svgGlow {
+  0%,100% { opacity: 0.28; transform: scale(1); }
+  50%     { opacity: 0.6;  transform: scale(1.14); }
+}
+@keyframes heatWave {
+  0%,100% { opacity: 0.5; transform: translateY(0); }
+  50%     { opacity: 1;   transform: translateY(-3px); }
+}
+@keyframes steamRise {
+  0%   { opacity: 0; transform: translateY(0); }
+  50%  { opacity: 0.8; transform: translateY(-7px); }
+  100% { opacity: 0; transform: translateY(-14px); }
+}
+
+.screen {
+    padding: 18px 18px 24px;
+    overflow-y: auto; height: 100%;
+    position: relative;
+    animation: fadeSlideUp 0.4s ease;
+}
+.screen::-webkit-scrollbar { width: 0; }
+
+.title {
+    font-family: 'Playfair Display', serif;
+    font-size: 23px; font-weight: 500;
+    color: #3d1f33; margin-bottom: 14px;
+}
+
+.sectionHead {
+    font-size: 14px; font-weight: 700;
+    color: #3d1f33; margin: 14px 0 9px;
+    display: flex; align-items: center; gap: 7px;
+}
+
+/* ── Relief items ── */
+.item {
+    display: flex; align-items: center; gap: 13px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.62), rgba(250,240,255,0.46));
+    backdrop-filter: blur(16px) saturate(1.8);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8);
+    border: 1.5px solid rgba(255,255,255,0.8);
+    border-radius: 18px; padding: 14px;
+    margin-bottom: 9px; cursor: pointer;
+    transition: transform 0.22s cubic-bezier(.2,.8,.3,1), box-shadow 0.22s;
+    box-shadow: 0 4px 14px rgba(100,50,90,0.09), 0 1px 0 rgba(255,255,255,0.9) inset;
+}
+.item:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(100,50,90,0.16), 0 1px 0 rgba(255,255,255,0.9) inset; }
+.item:active { transform: scale(0.97); }
+
+.iconBox {
+    width: 44px; height: 44px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(244,114,182,0.2), rgba(167,139,250,0.2));
+    border: 1px solid rgba(255,255,255,0.72);
+    box-shadow: 0 2px 8px rgba(100,50,90,0.1), 0 1px 0 rgba(255,255,255,0.85) inset;
+}
+.iconBreath {
+    background: linear-gradient(135deg, rgba(167,139,250,0.25), rgba(244,114,182,0.18));
+}
+
+.info { flex: 1; }
+.name { font-size: 13px; font-weight: 700; color: #3d1f33; }
+.desc { font-size: 11px; color: #9e6880; margin-top: 3px; line-height: 1.4; }
+
+.dur {
+    font-size: 11px; font-weight: 700; color: #8b5cf6;
+    background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(196,181,253,0.14));
+    border: 1px solid rgba(167,139,250,0.28);
+    border-radius: 10px; padding: 3px 10px; flex-shrink: 0;
+}
+
+/* ── Modal ── */
+.modal {
+    position: absolute; inset: 0;
+    background:
+        radial-gradient(ellipse at 25% 15%, rgba(255,200,230,0.45) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 85%, rgba(210,185,255,0.38) 0%, transparent 50%),
+        rgba(253,244,255,0.95);
+    backdrop-filter: blur(28px) saturate(2);
+    -webkit-backdrop-filter: blur(28px) saturate(2);
+    z-index: 50;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 14px;
+    animation: scaleIn 0.3s cubic-bezier(.2,.8,.3,1);
+    border-radius: inherit; padding: 24px 20px;
+    overflow-y: auto;
+}
+.modal::-webkit-scrollbar { width: 0; }
+
+.modalIcon {
+    font-size: 52px;
+    animation: float3 3.5s ease-in-out infinite;
+}
+
+.modalTitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 500;
+    color: #3d1f33; text-align: center;
+}
+
+/* ── Pose SVG figure ── */
+.poseFigureWrap {
+    width: 100%; max-width: 240px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.68), rgba(250,240,255,0.5));
+    border: 1.5px solid rgba(255,255,255,0.85);
+    border-radius: 22px; padding: 10px 12px;
+    box-shadow: 0 6px 24px rgba(100,50,90,0.1), 0 1px 0 rgba(255,255,255,0.95) inset;
+    backdrop-filter: blur(12px);
+}
+.poseSvg { width: 100%; height: auto; display: block; }
+
+/* SVG animation helpers */
+.torsoPath { animation: torsoBreath 4s ease-in-out infinite; }
+.torsoGlow { animation: svgGlow 4s ease-in-out infinite; transform-origin: 50% 50%; }
+.headBob   { animation: headBob 4s ease-in-out infinite; transform-origin: 44px 90px; }
+.armL      { animation: armSway 4s ease-in-out infinite; transform-origin: 58px 66px; }
+.armR      { animation: armSway 4s ease-in-out 0.5s infinite; transform-origin: 58px 66px; }
+.aura1     { animation: auraBreath 4s ease-in-out infinite; transform-origin: 44px 90px; }
+.aura2     { animation: auraBreath2 4s ease-in-out 0.6s infinite; transform-origin: 44px 90px; }
+.heatWave  { animation: heatWave 1.8s ease-in-out infinite; }
+.steam1    { animation: steamRise 2.2s ease-in-out infinite; transform-origin: 50% 100%; }
+.steam2    { animation: steamRise 2.2s ease-in-out 0.7s infinite; transform-origin: 50% 100%; }
+
+/* re-used for knees/twist */
+.breathGlow { animation: svgGlow 3s ease-in-out infinite; transform-origin: 50% 50%; }
+
+/* Modal info card */
+.modalCard {
+    background: linear-gradient(145deg, rgba(255,255,255,0.76), rgba(250,240,255,0.6));
+    backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(255,255,255,0.88);
+    border-radius: 20px; padding: 16px 18px;
+    max-width: 280px; width: 100%; text-align: center;
+    box-shadow: 0 6px 24px rgba(100,50,90,0.1), 0 1px 0 rgba(255,255,255,0.95) inset;
+}
+.modalBody { font-size: 13px; color: #9e6880; line-height: 1.65; }
+.modalHow {
+    font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5;
+    background: linear-gradient(135deg, #f472b6, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.closeBtn {
+    padding: 13px 36px; border: none; border-radius: 32px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 700;
+    background: linear-gradient(135deg, #f472b6 0%, #c084fc 55%, #a78bfa 100%);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(244,114,182,0.38), 0 1px 0 rgba(255,255,255,0.3) inset;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.closeBtn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(244,114,182,0.5); }
+.closeBtn:active { transform: scale(0.96); }
+
+/* ══════════════════════════════════════
+   BREATHING MODAL
+══════════════════════════════════════ */
+.eyesHint {
+    font-size: 12px; font-weight: 600; color: #9e6880;
+    letter-spacing: 0.4px; opacity: 0.9;
+    background: rgba(255,255,255,0.5);
+    padding: 6px 16px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.72);
+    backdrop-filter: blur(8px);
+}
+
+/* Wave rings container */
+.breathWrap {
+    position: relative;
+    width: 180px; height: 180px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+.waveRing {
+    position: absolute;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(244,114,182,0.4);
+    animation: waveRing 4s ease-out infinite;
+    /* duration overridden via inline style */
+}
+
+/* ── Circle: base state ── */
+.breathCircle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 2;
+    /* transition duration is set via inline style = step.dur seconds */
+    background: radial-gradient(circle at 40% 35%, rgba(196,181,253,0.85), rgba(167,139,250,0.72) 45%, rgba(244,114,182,0.55) 100%);
+    box-shadow:
+        0 0 0 12px rgba(167,139,250,0.12),
+        0 0 0 24px rgba(167,139,250,0.07);
+    border: 1.5px solid rgba(255,255,255,0.35);
+    transform: scale(1);
+}
+
+/* Inhale — SLOW expand (duration = inline style) */
+.phaseInhale {
+    background: radial-gradient(circle at 40% 35%,
+        rgba(255,182,218,0.92),
+        rgba(244,114,182,0.82) 50%,
+        rgba(192,132,252,0.7) 100%);
+    transform: scale(1.35);
+    box-shadow:
+        0 0 0 18px rgba(244,114,182,0.18),
+        0 0 0 36px rgba(244,114,182,0.09),
+        0 0 0 56px rgba(244,114,182,0.04);
+}
+
+/* Hold — stays large, violet shimmer */
+.phaseHold {
+    background: radial-gradient(circle at 40% 35%,
+        rgba(220,200,255,0.95),
+        rgba(139,92,246,0.82) 55%,
+        rgba(109,40,217,0.6) 100%);
+    transform: scale(1.35);
+    box-shadow:
+        0 0 0 18px rgba(139,92,246,0.2),
+        0 0 0 36px rgba(139,92,246,0.1),
+        0 0 0 56px rgba(139,92,246,0.05);
+    animation: holdShimmer 1.4s ease-in-out infinite;
+}
+@keyframes holdShimmer {
+    0%,100% { box-shadow: 0 0 0 18px rgba(139,92,246,0.2), 0 0 0 36px rgba(139,92,246,0.1); }
+    50%     { box-shadow: 0 0 0 22px rgba(139,92,246,0.28), 0 0 0 44px rgba(139,92,246,0.14); }
+}
+
+/* Exhale — SLOW contract (duration = inline style) */
+.phaseExhale {
+    background: radial-gradient(circle at 40% 35%,
+        rgba(230,210,255,0.88),
+        rgba(167,139,250,0.72) 50%,
+        rgba(125,100,220,0.55) 100%);
+    transform: scale(0.82);
+    box-shadow:
+        0 0 0 8px rgba(167,139,250,0.14),
+        0 0 0 16px rgba(167,139,250,0.07);
+}
+
+/* Inner text */
+.breathInner {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1px;
+    position: relative; z-index: 2;
+}
+.breathPhaseLabel {
+    font-size: 11px; font-weight: 700; color: #fff;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    text-shadow: 0 1px 6px rgba(80,20,60,0.3);
+}
+.breathTimer {
+    font-size: 34px; font-weight: 800; color: #fff;
+    line-height: 1;
+    text-shadow: 0 2px 10px rgba(80,20,60,0.25);
+    font-variant-numeric: tabular-nums;
+}
+.breathTimerUnit {
+    font-size: 10px; color: rgba(255,255,255,0.8);
+    text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;
+}
+
+/* Step pills */
+.breathSteps { display: flex; gap: 8px; align-items: center; }
+
+.stepPill {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 14px; border-radius: 14px;
+    background: rgba(255,255,255,0.42);
+    border: 1.5px solid rgba(255,255,255,0.65);
+    backdrop-filter: blur(8px);
+    transition: all 0.35s cubic-bezier(.2,.8,.3,1);
+    opacity: 0.55;
+}
+.stepPillActive {
+    background: linear-gradient(135deg, rgba(244,114,182,0.2), rgba(167,139,250,0.2));
+    border-color: rgba(244,114,182,0.42);
+    opacity: 1; transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(244,114,182,0.18);
+}
+.stepLabel { font-size: 10px; font-weight: 700; color: #3d1f33; text-transform: uppercase; letter-spacing: 0.5px; }
+.stepDur {
+    font-size: 13px; font-weight: 800;
+    background: linear-gradient(135deg, #f472b6, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.breathSub { font-size: 13px; color: #9e6880; font-weight: 500; }

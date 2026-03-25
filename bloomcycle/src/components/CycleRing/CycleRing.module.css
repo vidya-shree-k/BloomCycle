@@ -1,0 +1,86 @@
+@keyframes liquidRipple {
+  0%   { transform: scale(0.97); }
+  50%  { transform: scale(1.02); }
+  100% { transform: scale(0.97); }
+}
+
+.ringWrap {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0 16px;
+}
+
+.ring {
+    width: 138px;
+    height: 138px;
+    border-radius: 50%;
+    /* 3-color conic: Rose-Lavender only */
+    background: conic-gradient(
+        from -90deg,
+        #f472b6 0%   25%,
+        #d8bfff 25%  75%,
+        #f472b6 75%  100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 0 0 6px rgba(255, 255, 255, 0.7),
+        0 0 0 9px rgba(255, 255, 255, 0.25),
+        0 12px 36px rgba(244, 114, 182, 0.3),
+        0 4px 12px rgba(167, 139, 250, 0.2);
+    animation: liquidRipple 6s ease-in-out infinite;
+    position: relative;
+}
+
+.ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+        from -90deg,
+        rgba(255,255,255,0.3) 0% 10%,
+        rgba(255,255,255,0) 10% 90%,
+        rgba(255,255,255,0.2) 90% 100%
+    );
+    pointer-events: none;
+}
+
+.inner {
+    width: 106px;
+    height: 106px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 40% 35%,
+            rgba(255,255,255,0.98) 0%,
+            rgba(255,248,252,0.92) 60%,
+            rgba(248,244,255,0.85) 100%);
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(160,90,130,0.1) inset;
+    position: relative;
+}
+
+.dayNum {
+    font-size: 32px;
+    font-weight: 700;
+    color: #3d1f33;
+    line-height: 1;
+    background: linear-gradient(135deg, #3d1f33, #6b3d58);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dayLabel {
+    font-size: 10px;
+    color: #9e6880;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 1px;
+}

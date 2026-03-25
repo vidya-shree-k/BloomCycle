@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BloomCycle — Menstrual Wellness</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blush:#ffd6e0;--lavender:#e8d5f5;--peach:#ffe4cc;--cream:#fff8f0;
+  --rose:#f472b6;--violet:#a78bfa;--coral:#fb923c;
+  --text:#5a3a4a;--subtext:#8b6676;--white:rgba(255,255,255,0.85);
+  --glass:rgba(255,255,255,0.55);--glass2:rgba(255,255,255,0.35);
+  --shadow:0 8px 32px rgba(180,100,140,0.18);
+  --glow:0 0 24px rgba(244,114,182,0.2);
+}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:linear-gradient(135deg,#ffe4f0 0%,#f3e8ff 35%,#ffe8d6 70%,#fdf4ff 100%);
+  min-height:100vh;color:var(--text);
+  display:flex;justify-content:center;align-items:center;
+}
+.app-shell{
+  width:390px;height:844px;
+  background:linear-gradient(160deg,rgba(255,230,240,0.9) 0%,rgba(243,232,255,0.9) 50%,rgba(255,236,214,0.9) 100%);
+  border-radius:44px;
+  box-shadow:0 30px 80px rgba(180,80,140,0.22),0 2px 0 rgba(255,255,255,0.8) inset;
+  overflow:hidden;position:relative;
+  display:flex;flex-direction:column;
+  border:1.5px solid rgba(255,255,255,0.7);
+}
+/* Floating blobs */
+.blob{position:absolute;border-radius:50%;filter:blur(50px);opacity:0.45;z-index:0;pointer-events:none}
+.blob1{width:220px;height:220px;background:radial-gradient(circle,#ffd6e0,#f9a8d4);top:-60px;left:-60px;animation:float1 8s ease-in-out infinite}
+.blob2{width:180px;height:180px;background:radial-gradient(circle,#e8d5f5,#c4b5fd);bottom:80px;right:-50px;animation:float2 10s ease-in-out infinite}
+.blob3{width:140px;height:140px;background:radial-gradient(circle,#ffe4cc,#fcd5ac);top:40%;left:-40px;animation:float1 12s ease-in-out infinite reverse}
+@keyframes float1{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.05)}}
+@keyframes float2{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(20px) scale(0.95)}}
+
+/* Status bar */
+.statusbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 28px 0;font-size:12px;font-weight:600;
+  color:var(--subtext);position:relative;z-index:10;flex-shrink:0;
+}
+/* Screens */
+.screens{flex:1;overflow:hidden;position:relative;z-index:5}
+.screen{
+  position:absolute;inset:0;
+  overflow-y:auto;padding:16px 18px 20px;
+  opacity:0;transform:translateY(12px);
+  transition:opacity 0.35s ease,transform 0.35s ease;
+  pointer-events:none;
+}
+.screen.active{opacity:1;transform:translateY(0);pointer-events:all}
+.screen::-webkit-scrollbar{width:0}
+
+/* Glass cards */
+.card{
+  background:var(--glass);
+  backdrop-filter:blur(20px) saturate(1.8);
+  -webkit-backdrop-filter:blur(20px) saturate(1.8);
+  border:1.5px solid rgba(255,255,255,0.75);
+  border-radius:22px;padding:18px;
+  box-shadow:var(--shadow),0 1px 0 rgba(255,255,255,0.9) inset;
+  margin-bottom:14px;
+}
+.card-sm{padding:12px 16px;border-radius:16px}
+.card-glow{box-shadow:var(--shadow),var(--glow)}
+
+/* Typography */
+h2.screen-title{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:500;
+  color:var(--text);margin-bottom:14px;
+  letter-spacing:-0.3px;
+}
+.label{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--subtext);margin-bottom:6px}
+.body-sm{font-size:13px;color:var(--subtext);line-height:1.5}
+
+/* ── HOME ── */
+.greeting{font-size:13px;color:var(--subtext);margin-bottom:2px}
+.hero-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:500;color:var(--text)}
+.cycle-ring-wrap{display:flex;justify-content:center;margin:10px 0 14px}
+.cycle-ring{
+  width:130px;height:130px;border-radius:50%;
+  background:conic-gradient(from -90deg,#f472b6 0% 28%,#c4b5fd 28% 57%,#fb923c 57% 75%,#6ee7b7 75% 100%);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 8px rgba(255,255,255,0.55),0 8px 30px rgba(244,114,182,0.25);
+  position:relative;
+}
+.cycle-inner{
+  width:100px;height:100px;border-radius:50%;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(10px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.day-num{font-size:30px;font-weight:700;color:var(--text);line-height:1}
+.day-label{font-size:10px;color:var(--subtext);font-weight:500}
+
+.phase-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,rgba(244,114,182,0.2),rgba(167,139,250,0.2));
+  border:1px solid rgba(244,114,182,0.3);
+  border-radius:30px;padding:6px 14px;font-size:12px;font-weight:600;color:#be185d;
+  margin-bottom:6px;
+}
+.phase-desc{font-size:13px;color:var(--subtext);line-height:1.5}
+
+.quick-log{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.qlog-btn{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  background:var(--glass2);backdrop-filter:blur(12px);
+  border:1.5px solid rgba(255,255,255,0.65);
+  border-radius:16px;padding:12px 8px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+  box-shadow:0 4px 14px rgba(180,100,140,0.1);
+}
+.qlog-btn:active{transform:scale(0.95)}
+.qlog-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(180,100,140,0.18)}
+.qlog-icon{font-size:22px}
+.qlog-label{font-size:11px;font-weight:600;color:var(--text)}
+
+.primary-btn{
+  width:100%;padding:15px;border:none;border-radius:18px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;
+  background:linear-gradient(135deg,#f472b6,#a78bfa);color:#fff;
+  box-shadow:0 8px 24px rgba(244,114,182,0.4),0 1px 0 rgba(255,255,255,0.3) inset;
+  transition:transform 0.2s,box-shadow 0.2s;
+  letter-spacing:0.2px;
+}
+.primary-btn:active{transform:scale(0.97)}
+.primary-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(244,114,182,0.5)}
+
+.tip-emoji{font-size:20px;margin-bottom:4px}
+.tip-text{font-size:13px;color:var(--subtext);line-height:1.5}
+.tip-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+
+/* logged flash */
+.logged-flash{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+  background:rgba(244,114,182,0.95);color:#fff;
+  padding:10px 22px;border-radius:30px;font-size:13px;font-weight:600;
+  opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:200;
+  backdrop-filter:blur(8px);
+}
+.logged-flash.show{opacity:1}
+
+/* ── CYCLE ── */
+.cal-strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:2px}
+.cal-strip::-webkit-scrollbar{height:0}
+.cal-day{
+  flex-shrink:0;width:46px;height:62px;border-radius:14px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:var(--glass2);border:1.5px solid rgba(255,255,255,0.6);
+  cursor:pointer;transition:all 0.2s;
+}
+.cal-day.today{
+  background:linear-gradient(135deg,rgba(244,114,182,0.8),rgba(167,139,250,0.8));
+  border-color:rgba(255,255,255,0.8);
+  box-shadow:0 4px 14px rgba(244,114,182,0.3);
+}
+.cal-day.period-day{background:linear-gradient(135deg,rgba(251,113,133,0.4),rgba(244,114,182,0.3))}
+.cal-day.selected{border-color:#f472b6;box-shadow:0 0 0 2px rgba(244,114,182,0.4)}
+.cal-dn{font-size:10px;color:var(--subtext);font-weight:500}
+.cal-dd{font-size:16px;font-weight:700;color:var(--text)}
+.cal-day.today .cal-dn,.cal-day.today .cal-dd{color:#fff}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:#f472b6}
+.cal-day.today .cal-dot{background:#fff}
+
+.form-group{margin-bottom:14px}
+.seg-control{display:flex;gap:6px;flex-wrap:wrap}
+.seg-btn{
+  padding:8px 14px;border-radius:20px;border:1.5px solid rgba(244,114,182,0.3);
+  background:var(--glass2);font-size:12px;font-weight:600;color:var(--subtext);
+  cursor:pointer;transition:all 0.2s;
+}
+.seg-btn.active{
+  background:linear-gradient(135deg,rgba(244,114,182,0.8),rgba(167,139,250,0.7));
+  color:#fff;border-color:transparent;
+  box-shadow:0 4px 14px rgba(244,114,182,0.3);
+}
+.pain-slider{width:100%;-webkit-appearance:none;appearance:none;height:6px;
+  border-radius:3px;background:linear-gradient(to right,#f472b6,#fb923c);outline:none}
+.pain-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;
+  border-radius:50%;background:#fff;border:2px solid #f472b6;box-shadow:0 2px 8px rgba(244,114,182,0.4);cursor:pointer}
+.pain-value{font-size:18px;font-weight:700;color:#f472b6;text-align:right}
+
+.prediction-card{
+  background:linear-gradient(135deg,rgba(244,114,182,0.2),rgba(167,139,250,0.2));
+  border:1.5px solid rgba(244,114,182,0.3);border-radius:18px;padding:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.pred-icon{font-size:28px}
+.pred-date{font-size:18px;font-weight:700;color:var(--text)}
+.pred-sub{font-size:12px;color:var(--subtext)}
+
+.save-btn{
+  width:100%;padding:13px;border:none;border-radius:16px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  background:linear-gradient(135deg,#f472b6,#a78bfa);color:#fff;
+  box-shadow:0 6px 20px rgba(244,114,182,0.35);
+  transition:transform 0.2s;margin-top:4px;
+}
+.save-btn:active{transform:scale(0.97)}
+
+/* ── RELIEF ── */
+.section-head{font-size:15px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.relief-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--glass2);backdrop-filter:blur(12px);
+  border:1.5px solid rgba(255,255,255,0.65);border-radius:16px;
+  padding:13px;margin-bottom:9px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.relief-item:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(180,100,140,0.15)}
+.relief-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ri-yoga{background:linear-gradient(135deg,rgba(244,114,182,0.2),rgba(167,139,250,0.2))}
+.ri-breath{background:linear-gradient(135deg,rgba(110,231,183,0.2),rgba(167,139,250,0.2))}
+.ri-comfort{background:linear-gradient(135deg,rgba(251,146,60,0.2),rgba(252,211,77,0.2))}
+.relief-info{flex:1}
+.relief-name{font-size:13px;font-weight:600;color:var(--text)}
+.relief-desc{font-size:11px;color:var(--subtext);margin-top:2px}
+.relief-dur{font-size:11px;font-weight:600;color:#a78bfa;background:rgba(167,139,250,0.15);border-radius:8px;padding:2px 8px;flex-shrink:0}
+
+/* Breathing animation */
+.breath-modal{
+  position:absolute;inset:0;background:rgba(255,240,248,0.92);
+  backdrop-filter:blur(20px);z-index:50;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;transition:opacity 0.4s;border-radius:inherit;
+}
+.breath-modal.show{opacity:1;pointer-events:all}
+.breath-circle{
+  width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(167,139,250,0.6),rgba(244,114,182,0.4));
+  box-shadow:0 0 0 20px rgba(167,139,250,0.15),0 0 0 40px rgba(244,114,182,0.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:600;color:#fff;
+  animation:none;
+}
+.breath-circle.breathing{animation:breathe 7s ease-in-out infinite}
+@keyframes breathe{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 20px rgba(167,139,250,0.15),0 0 0 40px rgba(244,114,182,0.08)}
+  50%{transform:scale(1.3);box-shadow:0 0 0 35px rgba(167,139,250,0.2),0 0 0 60px rgba(244,114,182,0.1)}
+}
+.breath-label{font-size:18px;font-weight:600;color:var(--text)}
+.breath-sub{font-size:13px;color:var(--subtext)}
+.close-modal{padding:12px 32px;border:none;border-radius:30px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  background:linear-gradient(135deg,#f472b6,#a78bfa);color:#fff;
+  box-shadow:0 6px 20px rgba(244,114,182,0.35);}
+
+/* ── LEARN ── */
+.learn-cat{
+  background:var(--glass);backdrop-filter:blur(20px);
+  border:1.5px solid rgba(255,255,255,0.75);border-radius:20px;
+  margin-bottom:12px;overflow:hidden;
+  box-shadow:0 4px 16px rgba(180,100,140,0.1);
+}
+.learn-cat-head{
+  display:flex;align-items:center;gap:12px;padding:16px;cursor:pointer;
+  transition:background 0.2s;
+}
+.learn-cat-head:hover{background:rgba(255,255,255,0.3)}
+.learn-cat-icon{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.lci1{background:linear-gradient(135deg,rgba(244,114,182,0.25),rgba(251,113,133,0.2))}
+.lci2{background:linear-gradient(135deg,rgba(167,139,250,0.25),rgba(196,181,253,0.2))}
+.lci3{background:linear-gradient(135deg,rgba(110,231,183,0.25),rgba(52,211,153,0.2))}
+.lci4{background:linear-gradient(135deg,rgba(251,146,60,0.25),rgba(252,211,77,0.2))}
+.learn-cat-title{font-size:15px;font-weight:600;color:var(--text);flex:1}
+.learn-cat-arrow{font-size:16px;color:var(--subtext);transition:transform 0.3s}
+.learn-cat-arrow.open{transform:rotate(90deg)}
+.learn-cat-body{
+  max-height:0;overflow:hidden;transition:max-height 0.4s ease;
+  padding:0 16px;
+}
+.learn-cat-body.open{max-height:600px;padding-bottom:14px}
+.learn-item{padding:10px 0;border-top:1px solid rgba(244,114,182,0.15);font-size:13px;color:var(--subtext);line-height:1.6}
+.learn-item strong{color:var(--text);display:block;font-size:13px;font-weight:600;margin-bottom:3px}
+
+/* ── BOTTOM NAV ── */
+.nav-bar{
+  display:flex;background:rgba(255,255,255,0.65);
+  backdrop-filter:blur(24px) saturate(2);
+  -webkit-backdrop-filter:blur(24px) saturate(2);
+  border-top:1.5px solid rgba(255,255,255,0.8);
+  border-radius:0 0 44px 44px;
+  padding:10px 6px 18px;flex-shrink:0;
+  box-shadow:0 -4px 20px rgba(180,100,140,0.1);
+  position:relative;z-index:10;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;transition:transform 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-item:active{transform:scale(0.9)}
+.nav-icon{font-size:22px;transition:transform 0.3s}
+.nav-label{font-size:10px;font-weight:600;color:var(--subtext);letter-spacing:0.3px;transition:color 0.2s}
+.nav-item.active .nav-icon{transform:scale(1.15)}
+.nav-item.active .nav-label{color:#f472b6}
+.nav-pip{width:4px;height:4px;border-radius:50%;background:#f472b6;opacity:0;transition:opacity 0.2s}
+.nav-item.active .nav-pip{opacity:1}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- Blobs -->
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span id="status-time">9:41</span>
+    <span>🌸 BloomCycle</span>
+    <span>📶 🔋</span>
+  </div>
+
+  <!-- Screens -->
+  <div class="screens">
+
+    <!-- HOME -->
+    <div class="screen active" id="screen-home">
+      <div class="greeting">Good evening, lovely 🌸</div>
+      <div class="hero-name" style="margin-bottom:16px">How are you feeling?</div>
+
+      <div class="card card-glow">
+        <div class="cycle-ring-wrap">
+          <div class="cycle-ring">
+            <div class="cycle-inner">
+              <div class="day-num" id="home-day">—</div>
+              <div class="day-label">Cycle Day</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <div class="phase-badge" id="home-phase-badge">✨ Loading...</div>
+          <div class="phase-desc" id="home-phase-desc">Tracking your cycle...</div>
+        </div>
+      </div>
+
+      <div class="label">Quick Log</div>
+      <div class="quick-log">
+        <div class="qlog-btn" onclick="quickLog('Pain')">
+          <span class="qlog-icon">😣</span>
+          <span class="qlog-label">Pain</span>
+        </div>
+        <div class="qlog-btn" onclick="quickLog('Mood')">
+          <span class="qlog-icon">🌙</span>
+          <span class="qlog-label">Mood</span>
+        </div>
+        <div class="qlog-btn" onclick="quickLog('Flow')">
+          <span class="qlog-icon">💧</span>
+          <span class="qlog-label">Flow</span>
+        </div>
+      </div>
+
+      <button class="primary-btn" onclick="switchTab('relief')" style="margin-bottom:14px">
+        🌿 Start Cramps Relief
+      </button>
+
+      <div class="card card-sm">
+        <div class="tip-emoji">💡</div>
+        <div class="tip-title">Daily Tip</div>
+        <div class="tip-text" id="home-tip">Loading your daily tip...</div>
+      </div>
+
+      <div class="card card-sm" style="background:linear-gradient(135deg,rgba(244,114,182,0.15),rgba(167,139,250,0.15));border-color:rgba(244,114,182,0.3)">
+        <div class="tip-title">🗓️ Next Period</div>
+        <div style="font-size:20px;font-weight:700;color:var(--text);margin-top:4px" id="home-next-period">Calculating...</div>
+        <div class="tip-text">Based on your 28-day cycle</div>
+      </div>
+    </div>
+
+    <!-- CYCLE -->
+    <div class="screen" id="screen-cycle">
+      <h2 class="screen-title">Cycle Tracker</h2>
+
+      <div class="card">
+        <div class="label">This Week</div>
+        <div class="cal-strip" id="cal-strip"></div>
+      </div>
+
+      <div class="card">
+        <div class="label">Log Today</div>
+
+        <div class="form-group">
+          <div class="body-sm" style="margin-bottom:8px;font-weight:600;color:var(--text)">💧 Flow</div>
+          <div class="seg-control" id="flow-control">
+            <div class="seg-btn" onclick="selectSeg('flow','Light',this)">Light</div>
+            <div class="seg-btn active" onclick="selectSeg('flow','Medium',this)">Medium</div>
+            <div class="seg-btn" onclick="selectSeg('flow','Heavy',this)">Heavy</div>
+            <div class="seg-btn" onclick="selectSeg('flow','None',this)">None</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div class="body-sm" style="font-weight:600;color:var(--text)">😣 Pain Level</div>
+            <div class="pain-value" id="pain-display">2</div>
+          </div>
+          <input type="range" min="0" max="5" value="2" class="pain-slider" id="pain-slider" oninput="document.getElementById('pain-display').textContent=this.value"/>
+          <div style="display:flex;justify-content:space-between;margin-top:4px">
+            <span style="font-size:10px;color:var(--subtext)">None</span>
+            <span style="font-size:10px;color:var(--subtext)">Severe</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0">
+          <div class="body-sm" style="margin-bottom:8px;font-weight:600;color:var(--text)">🌸 Mood</div>
+          <div class="seg-control" id="mood-control">
+            <div class="seg-btn active" onclick="selectSeg('mood','Calm',this)">😌 Calm</div>
+            <div class="seg-btn" onclick="selectSeg('mood','Neutral',this)">😐 Neutral</div>
+            <div class="seg-btn" onclick="selectSeg('mood','Low',this)">😔 Low</div>
+            <div class="seg-btn" onclick="selectSeg('mood','Irritable',this)">😤 Irritable</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+          <input type="checkbox" id="period-start-cb" style="width:16px;height:16px;accent-color:#f472b6"/>
+          <label for="period-start-cb" style="font-size:13px;font-weight:600;color:var(--text);cursor:pointer">Mark as Period Start (Day 1)</label>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="saveLog()">Save Today's Log ✨</button>
+
+      <div class="card prediction-card">
+        <div class="pred-icon">🌙</div>
+        <div>
+          <div class="pred-sub">Next period predicted</div>
+          <div class="pred-date" id="cycle-next-period">Calculating...</div>
+          <div class="pred-sub">~28 day cycle</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELIEF -->
+    <div class="screen" id="screen-relief">
+      <h2 class="screen-title">Cramps Relief</h2>
+
+      <div class="section-head">🧘 Yoga for Cramps</div>
+      <div class="relief-item" onclick="openRelief('Child\'s Pose','Gently stretches lower back and hips, relieving menstrual pain.','Hold for 1–3 minutes, breathing deeply.')">
+        <div class="relief-icon ri-yoga">🙏</div>
+        <div class="relief-info">
+          <div class="relief-name">Child's Pose</div>
+          <div class="relief-desc">Stretches lower back & hips</div>
+        </div>
+        <div class="relief-dur">2 min</div>
+      </div>
+      <div class="relief-item" onclick="openRelief('Knees to Chest','Releases tension in the lower abdomen and back.','Lie on your back, hug both knees gently for 2 minutes.')">
+        <div class="relief-icon ri-yoga">🤗</div>
+        <div class="relief-info">
+          <div class="relief-name">Knees to Chest</div>
+          <div class="relief-desc">Releases lower abdomen tension</div>
+        </div>
+        <div class="relief-dur">2 min</div>
+      </div>
+      <div class="relief-item" onclick="openRelief('Supine Twist','Massages uterus and releases lower back tension.','Lie on back, drop knees to left, hold 1 min, switch sides.')">
+        <div class="relief-icon ri-yoga">🌀</div>
+        <div class="relief-info">
+          <div class="relief-name">Supine Twist</div>
+          <div class="relief-desc">Massages uterus gently</div>
+        </div>
+        <div class="relief-dur">3 min</div>
+      </div>
+
+      <div class="section-head" style="margin-top:4px">🌬️ Breathing</div>
+      <div class="relief-item" onclick="startBreathing('calm')">
+        <div class="relief-icon ri-breath">😌</div>
+        <div class="relief-info">
+          <div class="relief-name">2-Min Calm Breath</div>
+          <div class="relief-desc">Slow, equal inhale & exhale</div>
+        </div>
+        <div class="relief-dur">2 min</div>
+      </div>
+      <div class="relief-item" onclick="startBreathing('478')">
+        <div class="relief-icon ri-breath">💫</div>
+        <div class="relief-info">
+          <div class="relief-name">4-7-8 Technique</div>
+          <div class="relief-desc">Reduces anxiety & pain</div>
+        </div>
+        <div class="relief-dur">3 min</div>
+      </div>
+
+      <div class="section-head" style="margin-top:4px">🧸 Comfort Tips</div>
+      <div class="relief-item">
+        <div class="relief-icon ri-comfort">🌡️</div>
+        <div class="relief-info">
+          <div class="relief-name">Heat Pad</div>
+          <div class="relief-desc">Place on lower abdomen 15–20 min</div>
+        </div>
+        <div class="relief-dur">20 min</div>
+      </div>
+      <div class="relief-item">
+        <div class="relief-icon ri-comfort">☕</div>
+        <div class="relief-info">
+          <div class="relief-name">Warm Drinks</div>
+          <div class="relief-desc">Ginger tea, chamomile, or warm water</div>
+        </div>
+        <div class="relief-dur">Anytime</div>
+      </div>
+
+      <!-- Relief modal -->
+      <div class="breath-modal" id="relief-modal">
+        <div style="font-size:48px" id="relief-modal-icon">🧘</div>
+        <div class="breath-label" id="relief-modal-title">Pose</div>
+        <div class="card" style="max-width:260px;text-align:center">
+          <div class="body-sm" id="relief-modal-body"></div>
+          <div class="body-sm" id="relief-modal-how" style="margin-top:8px;color:#f472b6;font-weight:500"></div>
+        </div>
+        <button class="close-modal" onclick="closeModal('relief-modal')">Done ✓</button>
+      </div>
+
+      <!-- Breathing modal -->
+      <div class="breath-modal" id="breath-modal">
+        <div class="breath-label" id="breath-modal-title">Breathing Exercise</div>
+        <div class="breath-circle" id="breath-circle">Breathe</div>
+        <div class="breath-sub" id="breath-instruction">Get comfortable...</div>
+        <div style="font-size:13px;color:var(--subtext)" id="breath-count"></div>
+        <button class="close-modal" onclick="stopBreathing()">Stop</button>
+      </div>
+    </div>
+
+    <!-- LEARN -->
+    <div class="screen" id="screen-learn">
+      <h2 class="screen-title">Learn & Discover</h2>
+      <div class="body-sm" style="margin-bottom:16px">Knowledge is self-care 🌸</div>
+
+      <div class="learn-cat" id="lc1">
+        <div class="learn-cat-head" onclick="toggleLearn('lc1')">
+          <div class="learn-cat-icon lci1">🩹</div>
+          <div class="learn-cat-title">Menstrual Products</div>
+          <div class="learn-cat-arrow" id="arr-lc1">▶</div>
+        </div>
+        <div class="learn-cat-body" id="body-lc1">
+          <div class="learn-item"><strong>Pads</strong>Worn outside the body. Great for beginners. Change every 4–6 hours.</div>
+          <div class="learn-item"><strong>Tampons</strong>Inserted internally. Use lowest absorbency needed. Change every 4–8 hours.</div>
+          <div class="learn-item"><strong>Menstrual Cup</strong>Reusable silicone cup. Eco-friendly. Can wear up to 12 hours.</div>
+          <div class="learn-item"><strong>Period Underwear</strong>Absorbent underwear. Comfortable and reusable. Great for light days.</div>
+          <div class="learn-item"><strong>Discs</strong>Worn at the cervix. Can be worn during intimacy. Holds more than a cup.</div>
+        </div>
+      </div>
+
+      <div class="learn-cat" id="lc2">
+        <div class="learn-cat-head" onclick="toggleLearn('lc2')">
+          <div class="learn-cat-icon lci2">🌙</div>
+          <div class="learn-cat-title">Cycle Phases</div>
+          <div class="learn-cat-arrow" id="arr-lc2">▶</div>
+        </div>
+        <div class="learn-cat-body" id="body-lc2">
+          <div class="learn-item"><strong>🔴 Menstrual (Days 1–5)</strong>Uterine lining sheds. Rest, warmth & iron-rich foods help.</div>
+          <div class="learn-item"><strong>🌱 Follicular (Days 6–13)</strong>Energy rises. Estrogen builds up. Great time for new projects.</div>
+          <div class="learn-item"><strong>✨ Ovulation (Day 14)</strong>Egg released. Peak energy & confidence. You may feel your best!</div>
+          <div class="learn-item"><strong>🍂 Luteal (Days 15–28)</strong>Progesterone rises then drops. PMS can occur. Self-care is key.</div>
+        </div>
+      </div>
+
+      <div class="learn-cat" id="lc3">
+        <div class="learn-cat-head" onclick="toggleLearn('lc3')">
+          <div class="learn-cat-icon lci3">💚</div>
+          <div class="learn-cat-title">PMS Basics</div>
+          <div class="learn-cat-arrow" id="arr-lc3">▶</div>
+        </div>
+        <div class="learn-cat-body" id="body-lc3">
+          <div class="learn-item"><strong>What is PMS?</strong>Premenstrual Syndrome — physical & emotional symptoms in the luteal phase (days 15–28).</div>
+          <div class="learn-item"><strong>Common Symptoms</strong>Bloating, breast tenderness, mood swings, fatigue, cravings, headaches.</div>
+          <div class="learn-item"><strong>Nutrition Help</strong>Reduce sodium & sugar. Add magnesium-rich foods (dark chocolate, leafy greens).</div>
+          <div class="learn-item"><strong>Movement</strong>Light exercise like walking or yoga can reduce bloating and improve mood.</div>
+          <div class="learn-item"><strong>Sleep</strong>Aim for 7–9 hours. Your body heals during rest, especially during this phase.</div>
+        </div>
+      </div>
+
+      <div class="learn-cat" id="lc4">
+        <div class="learn-cat-head" onclick="toggleLearn('lc4')">
+          <div class="learn-cat-icon lci4">🩺</div>
+          <div class="learn-cat-title">When to See a Doctor</div>
+          <div class="learn-cat-arrow" id="arr-lc4">▶</div>
+        </div>
+        <div class="learn-cat-body" id="body-lc4">
+          <div class="learn-item"><strong>Very Heavy Bleeding</strong>Soaking a pad/tampon every hour for 2+ hours. Could indicate fibroids or a clotting issue.</div>
+          <div class="learn-item"><strong>Severe Cramps</strong>Pain that disrupts daily life may be endometriosis or adenomyosis — seek evaluation.</div>
+          <div class="learn-item"><strong>Irregular Cycles</strong>Cycles consistently shorter than 21 or longer than 35 days warrant a check-up.</div>
+          <div class="learn-item"><strong>Missed Periods</strong>Missing 3+ periods (excluding pregnancy) may signal hormonal or thyroid issues.</div>
+          <div class="learn-item"><strong>Unusual Discharge</strong>Strong odor, unusual color, or itching outside of period can indicate infection.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end screens -->
+
+  <!-- Bottom Nav -->
+  <nav class="nav-bar">
+    <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
+      <span class="nav-icon">🏠</span>
+      <div class="nav-pip"></div>
+      <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('cycle')" id="nav-cycle">
+      <span class="nav-icon">🗓️</span>
+      <div class="nav-pip"></div>
+      <span class="nav-label">Cycle</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('relief')" id="nav-relief">
+      <span class="nav-icon">🌿</span>
+      <div class="nav-pip"></div>
+      <span class="nav-label">Relief</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('learn')" id="nav-learn">
+      <span class="nav-icon">📖</span>
+      <div class="nav-pip"></div>
+      <span class="nav-label">Learn</span>
+    </div>
+  </nav>
+
+  <div class="logged-flash" id="flash">✓ Logged!</div>
+</div>
+
+<script>
+// ── State ──
+const CYCLE_LEN = 28;
+const state = {
+  logs: JSON.parse(localStorage.getItem('bloom_logs')||'{}'),
+  periodStart: localStorage.getItem('bloom_period_start') || null,
+  selFlow: 'Medium',
+  selMood: 'Calm',
+  breathTimer: null,
+};
+
+// ── Helpers ──
+function todayStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function addDays(dateStr,n){
+  const d=new Date(dateStr);
+  d.setDate(d.getDate()+n);
+  return d;
+}
+function formatDate(dateStr){
+  const d=new Date(dateStr);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+function daysBetween(a,b){
+  return Math.round((new Date(b)-new Date(a))/(1000*60*60*24));
+}
+
+function getCycleDay(){
+  if(!state.periodStart) return null;
+  const diff = daysBetween(state.periodStart, todayStr());
+  if(diff<0) return null;
+  return (diff % CYCLE_LEN) + 1;
+}
+
+function getPhase(day){
+  if(!day) return {name:'Unknown',desc:'Start logging to track your cycle',emoji:'🌸',color:'rgba(244,114,182,0.2)'};
+  if(day<=5) return {name:'Menstrual',desc:'Your body needs rest & warmth today. Be gentle with yourself.',emoji:'🔴',color:'rgba(251,113,133,0.2)'};
+  if(day<=13) return {name:'Follicular',desc:'Energy is building! A great time to start new things.',emoji:'🌱',color:'rgba(110,231,183,0.2)'};
+  if(day===14) return {name:'Ovulation',desc:'You\'re at peak energy and confidence today!',emoji:'✨',color:'rgba(252,211,77,0.2)'};
+  return {name:'Luteal',desc:'Wind down, rest more. Some PMS may appear — that\'s okay.',emoji:'🍂',color:'rgba(251,146,60,0.2)'};
+}
+
+function getNextPeriod(){
+  if(!state.periodStart) return 'Set your period start in Cycle tab';
+  const cycleDay = getCycleDay()||1;
+  const daysLeft = CYCLE_LEN - ((daysBetween(state.periodStart,todayStr())) % CYCLE_LEN);
+  const next = addDays(todayStr(), daysLeft);
+  return next.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+}
+
+// ── Tips ──
+const tips = [
+  'Drinking chamomile tea may help ease cramps thanks to its anti-inflammatory properties.',
+  'A warm heating pad on your lower abdomen can relax uterine muscles and reduce pain.',
+  'Light walking or yoga increases endorphins — your body\'s natural pain relievers.',
+  'Dark chocolate (70%+) is rich in magnesium, which may help ease PMS symptoms.',
+  'Staying hydrated reduces bloating and helps your body function at its best.',
+  'Tracking your cycle helps you understand your body\'s unique rhythms and needs.',
+  'Rest is productive! Your body does important hormonal work during your period.',
+];
+
+// ── Status Bar Clock ──
+function updateClock(){
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('status-time').textContent = `${h}:${m}`;
+}
+setInterval(updateClock, 10000);
+updateClock();
+
+// ── Init Home ──
+function initHome(){
+  const day = getCycleDay();
+  const phase = getPhase(day);
+  document.getElementById('home-day').textContent = day || '—';
+  document.getElementById('home-phase-badge').textContent = `${phase.emoji} ${phase.name} Phase`;
+  document.getElementById('home-phase-desc').textContent = phase.desc;
+  document.getElementById('home-next-period').textContent = getNextPeriod();
+  const tip = tips[new Date().getDate() % tips.length];
+  document.getElementById('home-tip').textContent = tip;
+}
+
+// ── Calendar Strip ──
+function buildCalendar(){
+  const strip = document.getElementById('cal-strip');
+  strip.innerHTML = '';
+  const today = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Show 14 days centered around today
+  for(let i=-5;i<=8;i++){
+    const d = new Date(today);
+    d.setDate(today.getDate()+i);
+    const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    if(i===0) el.classList.add('today');
+
+    // Mark period days (days 1–5 from last period start)
+    if(state.periodStart){
+      const diff = daysBetween(state.periodStart, dStr);
+      if(diff>=0 && diff<5) el.classList.add('period-day');
+    }
+
+    const dot = state.logs[dStr] ? '<div class="cal-dot"></div>' : '';
+    el.innerHTML = `<div class="cal-dn">${days[d.getDay()]}</div><div class="cal-dd">${d.getDate()}</div>${dot}`;
+    el.onclick = ()=>{
+      document.querySelectorAll('.cal-day').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+    strip.appendChild(el);
+  }
+  // scroll today into view
+  setTimeout(()=>{
+    const todayEl = strip.querySelector('.today');
+    if(todayEl) todayEl.scrollIntoView({inline:'center',behavior:'smooth'});
+  },100);
+}
+
+function initCycle(){
+  buildCalendar();
+  const nextEl = document.getElementById('cycle-next-period');
+  nextEl.textContent = getNextPeriod();
+  // Restore today's log if exists
+  const tLog = state.logs[todayStr()];
+  if(tLog){
+    if(tLog.flow) selectSegByValue('flow',tLog.flow);
+    if(tLog.mood) selectSegByValue('mood',tLog.mood);
+    if(tLog.pain!=null) {
+      document.getElementById('pain-slider').value = tLog.pain;
+      document.getElementById('pain-display').textContent = tLog.pain;
+    }
+  }
+}
+
+// ── Seg control ──
+function selectSeg(type, val, el){
+  const ctrl = el.closest('.seg-control');
+  ctrl.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(type==='flow') state.selFlow = val;
+  if(type==='mood') state.selMood = val;
+}
+
+function selectSegByValue(type, val){
+  const ctrlId = type+'-control';
+  const ctrl = document.getElementById(ctrlId);
+  if(!ctrl) return;
+  ctrl.querySelectorAll('.seg-btn').forEach(b=>{
+    if(b.textContent.includes(val)){
+      b.classList.add('active');
+      if(type==='flow') state.selFlow = val;
+      if(type==='mood') state.selMood = val;
+    } else {
+      b.classList.remove('active');
+    }
+  });
+}
+
+// ── Save Log ──
+function saveLog(){
+  const today = todayStr();
+  const pain = parseInt(document.getElementById('pain-slider').value);
+  const isPeriodStart = document.getElementById('period-start-cb').checked;
+
+  state.logs[today] = {date:today, flow:state.selFlow, pain, mood:state.selMood};
+  localStorage.setItem('bloom_logs', JSON.stringify(state.logs));
+
+  if(isPeriodStart){
+    state.periodStart = today;
+    localStorage.setItem('bloom_period_start', today);
+  }
+
+  showFlash('Today logged ✨');
+  buildCalendar();
+  initHome();
+  document.getElementById('cycle-next-period').textContent = getNextPeriod();
+}
+
+// ── Quick Log ──
+function quickLog(type){
+  showFlash(`${type} logged ✓`);
+  const today = todayStr();
+  if(!state.logs[today]) state.logs[today] = {date:today};
+  if(type==='Pain') state.logs[today].pain = 3;
+  if(type==='Mood') state.logs[today].mood = state.selMood;
+  if(type==='Flow') state.logs[today].flow = state.selFlow;
+  localStorage.setItem('bloom_logs', JSON.stringify(state.logs));
+}
+
+function showFlash(msg){
+  const el = document.getElementById('flash');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+// ── Tab Navigation ──
+function switchTab(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  document.getElementById('nav-'+tab).classList.add('active');
+  if(tab==='home') initHome();
+  if(tab==='cycle') initCycle();
+}
+
+// ── Relief ──
+function openRelief(name, body, how){
+  document.getElementById('relief-modal-title').textContent = name;
+  document.getElementById('relief-modal-body').textContent = body;
+  document.getElementById('relief-modal-how').textContent = how;
+  document.getElementById('relief-modal').classList.add('show');
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('show');
+}
+
+// ── Breathing ──
+let breathInterval = null;
+const breathPatterns = {
+  calm: [{phase:'Inhale',dur:4},{phase:'Exhale',dur:4}],
+  '478': [{phase:'Inhale',dur:4},{phase:'Hold',dur:7},{phase:'Exhale',dur:8}],
+};
+
+function startBreathing(type){
+  const modal = document.getElementById('breath-modal');
+  const circle = document.getElementById('breath-circle');
+  const instr = document.getElementById('breath-instruction');
+  const countEl = document.getElementById('breath-count');
+  const titleEl = document.getElementById('breath-modal-title');
+
+  titleEl.textContent = type==='calm' ? '2-Min Calm Breath' : '4-7-8 Technique';
+  circle.classList.add('breathing');
+  modal.classList.add('show');
+
+  const pattern = breathPatterns[type];
+  let step=0, cycles=0;
+  const maxCycles = type==='calm'?15:5;
+
+  function runStep(){
+    const {phase, dur} = pattern[step];
+    circle.textContent = phase;
+    instr.textContent = `${dur} seconds — ${phase.toLowerCase()}...`;
+    countEl.textContent = `Cycle ${cycles+1} of ${maxCycles}`;
+
+    let t=dur;
+    clearInterval(breathInterval);
+    breathInterval = setInterval(()=>{
+      t--;
+      if(t<=0){
+        clearInterval(breathInterval);
+        step=(step+1)%pattern.length;
+        if(step===0) cycles++;
+        if(cycles>=maxCycles){
+          stopBreathing();
+        } else {
+          runStep();
+        }
+      }
+    },1000);
+  }
+  runStep();
+}
+
+function stopBreathing(){
+  clearInterval(breathInterval);
+  document.getElementById('breath-circle').classList.remove('breathing');
+  document.getElementById('breath-circle').textContent = 'Breathe';
+  document.getElementById('breath-instruction').textContent = '';
+  document.getElementById('breath-count').textContent = '';
+  closeModal('breath-modal');
+}
+
+// ── Learn ──
+function toggleLearn(id){
+  const body = document.getElementById('body-'+id);
+  const arr = document.getElementById('arr-'+id);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  arr.classList.toggle('open',!isOpen);
+}
+
+// ── Boot ──
+initHome();
+</script>
+</body>
+</html>
